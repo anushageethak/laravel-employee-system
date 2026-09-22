@@ -12,6 +12,34 @@
         Add Employee
     </a>
 </div>
+<form
+    action="{{ route('employees.index') }}"
+    method="GET"
+    class="row g-2 mb-4"
+>
+    <div class="col-md-8">
+        <input
+            type="text"
+            name="search"
+            class="form-control"
+            placeholder="Search name, email, phone or designation"
+            value="{{ $search }}"
+        >
+    </div>
+
+    <div class="col-md-4">
+        <button type="submit" class="btn btn-primary">
+            Search
+        </button>
+
+        <a
+            href="{{ route('employees.index') }}"
+            class="btn btn-secondary"
+        >
+            Clear
+        </a>
+    </div>
+</form>
 
 @if (session('success'))
     <div class="alert alert-success">
@@ -89,7 +117,11 @@
 
                         <tr>
                             <td colspan="7" class="text-center">
-                                No employees found.
+                                @if ($search !== '')
+                                    No employees found for "{{ $search }}".
+                                @else
+                                    No employees found.
+                                @endif                            
                             </td>
                         </tr>
 
@@ -97,6 +129,9 @@
 
                 </tbody>
             </table>
+            <div class="mt-4">
+                {{ $employees->links() }}
+            </div>
         </div>
 
     </div>
