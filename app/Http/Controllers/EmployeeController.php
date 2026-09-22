@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Employee;
+use App\Models\Department;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -18,12 +19,16 @@ class EmployeeController extends Controller
 
 
         $employees=Employee::query()
+        ->with('department')
             ->when($search !== "", function ($query) use ($search){
                 $query->where(function($query) use ($search) {
                     $query->where('name', 'like', "%{$search}%")
                     ->orWhere('email', 'like', "%{$search}%")
                     ->orwhere('phone', 'like', "%{$search}%")
-                    ->orWhere('designation', 'like', "%{$search}%");
+                    ->orWhere('designation', 'like', "%{$search}%")
+                    ->orWhereHas('department', function ($query) use ($search) {
+                        $query->where('name', 'like', "%{$search}%");
+                    });
                 });
             })
         ->latest()
@@ -39,7 +44,8 @@ class EmployeeController extends Controller
      */
     public function create()
     {
-        return view('employees.create');
+        $departments = Department::orderBy('name')->get();
+        return view('employees.create', compact('departments'));
     }
 
     /**
@@ -48,6 +54,7 @@ class EmployeeController extends Controller
     public function store(Request $request)
     {
         $validated= $request->validate([
+            'department_id'=>['required','exists:departments,id'],
             'name'=>['required','string','max:255'],
             'email' => ['required', 'email', 'unique:employees,email'],
             'phone' => ['nullable', 'string', 'max:20'],
@@ -74,7 +81,8 @@ class EmployeeController extends Controller
      */
     public function edit(Employee $employee)
     {
-        return view('employees.edit', compact('employee'));
+        $departments = Department::orderBy('name')->get();
+        return view('employees.edit', compact('employee', 'departments'));
 
     }
 
@@ -84,6 +92,10 @@ class EmployeeController extends Controller
     public function update(Request $request, Employee $employee)
     {
         $validated = $request->validate([
+            'department_id' => [
+            'required',
+            'exists:departments,id'
+        ],
             'name' => ['required', 'string', 'max:255'],
 
             'email' => [

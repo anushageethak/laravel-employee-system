@@ -57,6 +57,7 @@
                     <tr>
                         <th>ID</th>
                         <th>Name</th>
+                        <th>Department</th>
                         <th>Email</th>
                         <th>Phone</th>
                         <th>Designation</th>
@@ -73,6 +74,10 @@
                             <td>{{ $employee->id }}</td>
 
                             <td>{{ $employee->name }}</td>
+
+                            <td>
+                                {{ $employee->department?->name ?? 'Not assigned' }}
+                            </td>
 
                             <td>{{ $employee->email }}</td>
 
@@ -116,7 +121,7 @@
                     @empty
 
                         <tr>
-                            <td colspan="7" class="text-center">
+                            <td colspan="8" class="text-center">
                                 @if ($search !== '')
                                     No employees found for "{{ $search }}".
                                 @else
